@@ -293,10 +293,10 @@ function Nav() {
     <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:500, height:68, display:"flex", alignItems:"center", padding:"0 48px",
       background: scrolled?"rgba(255,255,255,0.97)":"rgba(255,255,255,0.85)", backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)",
       borderBottom:"1px solid rgba(0,0,0,0.06)", boxShadow: scrolled?"0 4px 16px rgba(0,0,0,0.06)":"none", transition:"all 0.3s" }}>
-      <a href="#" style={{ display:"flex", alignItems:"center", gap:8, marginRight:"auto", fontSize:17, fontWeight:800, color:T.starbucks, letterSpacing:"-0.04em" }}>
+      <button type="button" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} aria-label="Home" style={{ display:"flex", alignItems:"center", gap:8, marginRight:"auto", fontSize:17, fontWeight:800, color:T.starbucks, letterSpacing:"-0.04em", background:"transparent", border:"none", cursor:"pointer", padding:0 }}>
         <span style={{ width:8, height:8, borderRadius:"50%", background:T.accent, boxShadow:"0 0 0 3px rgba(0,117,74,0.18)" }} />
         Siddharthi Saha
-      </a>
+      </button>
       <div className="hide-mobile" style={{ display:"flex", alignItems:"center", gap:4 }}>
         {["Experience","Projects","Skills","Education","Chat"].map(l=>(
           <a key={l} href={`#${l.toLowerCase()}`}
@@ -483,7 +483,7 @@ function ProjectMock({ proj }) {
         ))}
       </div>
       <div style={{background:"rgba(255,255,255,0.04)",borderRadius:6,padding:"8px 10px",marginBottom:8,fontSize:9}}>
-        <div style={{color:"rgba(255,255,255,0.4)",marginBottom:4}}>// Segment Log</div>
+        <div style={{color:"rgba(255,255,255,0.4)",marginBottom:4}}>{"// Segment Log"}</div>
         {["[0] offset=4821 lag=0 ✓","[1] offset=4803 lag=0 ✓","[2] offset=4819 lag=1 ⚡"].map((l,i)=>(
           <div key={i} style={{color:i===2?"#fbbf24":"#4ade80",marginBottom:2}}>{l}</div>
         ))}
