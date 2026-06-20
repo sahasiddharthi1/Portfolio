@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { getPortfolioViews, incrementPortfolioViews } from './firebase';
 
 const T = {
   starbucks: "#006241", accent: "#00754A", house: "#1E3932", uplift: "#2b5148",
@@ -96,67 +97,72 @@ function useViewCounter() {
   const [viewData, setViewData] = useState({ daily: [], monthly: [], yearly: [] });
 
   useEffect(() => {
-    const loadAndIncrement = async () => {
-      try {
-        const today = new Date();
-        const dayKey = today.toISOString().split('T')[0]; // YYYY-MM-DD
-        const monthKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
-        const yearKey = `${today.getFullYear()}`;
+    const today = new Date();
+    const dayKey = today.toISOString().split('T')[0];
+    const monthKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+    const yearKey = `${today.getFullYear()}`;
+    const uniqueKey = 'portfolio-unique-viewer';
+    const localTotalKey = 'portfolio-local-total';
+    const alreadyViewed = localStorage.getItem(uniqueKey);
 
-        let data = { daily: {}, monthly: {}, yearly: {}, total: 0, lastVisit: '' };
+    console.log('View counter: unique viewer?', Boolean(alreadyViewed), 'uniqueKey:', uniqueKey);
 
-        try {
-          const stored = await window.storage.get('portfolio-views', true);
-          if (stored) data = JSON.parse(stored.value);
-        } catch(e) { /* first visit */ }
-
-        // Only increment once per day per "session"
-        const sessionKey = `visited-${dayKey}`;
-        let alreadyVisited = false;
-        try {
-          const sess = await window.storage.get(sessionKey, false);
-          if (sess) alreadyVisited = true;
-        } catch(e) {}
-
-        if (!alreadyVisited) {
-          data.daily[dayKey] = (data.daily[dayKey] || 0) + 1;
-          data.monthly[monthKey] = (data.monthly[monthKey] || 0) + 1;
-          data.yearly[yearKey] = (data.yearly[yearKey] || 0) + 1;
-          data.total = (data.total || 0) + 1;
-          data.lastVisit = dayKey;
-
-          await window.storage.set('portfolio-views', JSON.stringify(data), true);
-          try { await window.storage.set(sessionKey, '1', false); } catch(e) {}
+    if (!alreadyViewed) {
+      incrementPortfolioViews(dayKey, monthKey, yearKey)
+        .then((data) => {
+          if (data) {
+            localStorage.setItem(uniqueKey, '1');
+            setViewDataFromSnapshot(data);
+          } else {
+            const fallback = { daily: { [dayKey]: 1 }, monthly: { [monthKey]: 1 }, yearly: { [yearKey]: 1 }, total: 1, lastVisit: dayKey };
+            localStorage.setItem(uniqueKey, '1');
+            localStorage.setItem(localTotalKey, '1');
+            setViewDataFromSnapshot(fallback);
+          }
+        })
+        .catch(() => {
+          const fallback = { daily: { [dayKey]: 1 }, monthly: { [monthKey]: 1 }, yearly: { [yearKey]: 1 }, total: 1, lastVisit: dayKey };
+          localStorage.setItem(uniqueKey, '1');
+          localStorage.setItem(localTotalKey, '1');
+          setViewDataFromSnapshot(fallback);
+        });
+    } else {
+      getPortfolioViews().then((data) => {
+        if (data) setViewDataFromSnapshot(data);
+        else {
+          const localTotal = Number(localStorage.getItem(localTotalKey) || 1);
+          setViewDataFromSnapshot({ daily: { [dayKey]: localTotal }, monthly: { [monthKey]: localTotal }, yearly: { [yearKey]: localTotal }, total: localTotal, lastVisit: dayKey });
         }
-
-        // Build chart data
-        const last14Days = [];
-        for (let i = 13; i >= 0; i--) {
-          const d = new Date(today);
-          d.setDate(d.getDate() - i);
-          const k = d.toISOString().split('T')[0];
-          last14Days.push({ label: k.slice(5), value: data.daily[k] || 0 });
-        }
-        const last12Months = [];
-        for (let i = 11; i >= 0; i--) {
-          const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-          const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-          last12Months.push({ label: k.slice(5), value: data.monthly[k] || 0 });
-        }
-        const years = [];
-        for (let y = 2025; y <= today.getFullYear(); y++) {
-          years.push({ label: `${y}`, value: data.yearly[`${y}`] || 0 });
-        }
-
-        setTotalViews(data.total || 1);
-        setViewData({ daily: last14Days, monthly: last12Months, yearly: years });
-      } catch(e) {
-        setTotalViews(1);
-        setViewData({ daily: Array(14).fill(0).map((_,i)=>({label:`Day ${i+1}`,value:0})), monthly: [], yearly: [] });
-      }
-    };
-    loadAndIncrement();
+      });
+    }
   }, []);
+
+  const setViewDataFromSnapshot = (data) => {
+    const today = new Date();
+
+    const last14Days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const k = d.toISOString().split('T')[0];
+      last14Days.push({ label: k.slice(5), value: data.daily?.[k] || 0 });
+    }
+
+    const last12Months = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      last12Months.push({ label: k.slice(5), value: data.monthly?.[k] || 0 });
+    }
+
+    const years = [];
+    for (let y = 2025; y <= today.getFullYear(); y++) {
+      years.push({ label: `${y}`, value: data.yearly?.[`${y}`] || 0 });
+    }
+
+    setTotalViews(data.total || 0);
+    setViewData({ daily: last14Days, monthly: last12Months, yearly: years });
+  };
 
   return { totalViews, viewData };
 }
