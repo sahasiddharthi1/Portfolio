@@ -799,19 +799,47 @@ function Chat() {
   const msgsRef=useRef(null);
   useEffect(()=>{if(msgsRef.current)msgsRef.current.scrollTop=msgsRef.current.scrollHeight;},[msgs,loading]);
   const sugs=["How does GoKafka work?","What's your current role?","Why hire you?","Tell me about ShopFlow's APM"];
-  const send=useCallback(async(text)=>{
-    const q=text||input.trim(); if(!q||loading)return;
-    setShowSugs(false); setInput("");
-    const newHist=[...hist,{role:"user",content:q}]; setHist(newHist);
-    setMsgs(m=>[...m,{role:"user",text:q}]); setLoading(true);
-    try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:SYS_PROMPT,messages:newHist})});
-      const d=await r.json(); const reply=d.content?.[0]?.text||"Something went wrong.";
-      setHist(h=>[...h,{role:"assistant",content:reply}]);
-      setMsgs(m=>[...m,{role:"bot",text:reply}]);
-    }catch{setMsgs(m=>[...m,{role:"bot",text:"Something went wrong. Please try again."}])}
+  const send = useCallback(async(text)=>{
+    const q = text || input.trim(); 
+    if(!q || loading) return;
+    
+    setShowSugs(false); 
+    setInput("");
+    
+    const newHist = [...hist, {role:"user", content:q}]; 
+    setHist(newHist);
+    setMsgs(m=>[...m, {role:"user", text:q}]); 
+    setLoading(true);
+    
+    try {
+      // Call the Vercel API route
+      const apiUrl = process.env.REACT_APP_API_URL || '/api/chat';
+      
+      const r = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          messages: newHist,
+          system: SYS_PROMPT
+        })
+      });
+      
+      if (!r.ok) {
+        throw new Error(`API error: ${r.status}`);
+      }
+      
+      const d = await r.json();
+      const reply = d.content?.[0]?.text || 'Something went wrong.';
+      
+      setHist(h=>[...h, {role:"assistant", content:reply}]);
+      setMsgs(m=>[...m, {role:"bot", text:reply}]);
+    } catch(error) {
+      console.error('Chat error:', error);
+      setMsgs(m=>[...m, {role:"bot", text:"Something went wrong. Please try again."}]);
+    }
+    
     setLoading(false);
-  },[input,loading,hist]);
+  }, [input, loading, hist]);
   return (
     <section id="chat" style={{padding:"100px 80px",background:T.ceramic}} className="mobile-pad">
       <div style={{display:"grid",gridTemplateColumns:"1fr 1.4fr",gap:60,alignItems:"start"}} className="mobile-full">
