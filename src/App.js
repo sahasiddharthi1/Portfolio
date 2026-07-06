@@ -72,7 +72,7 @@ const Eyebrow = ({ children, light }) => (
   </div>
 );
 
-function Btn({ href, variant, children, onClick }) {
+function Btn({ href, variant, children, onClick, target, rel }) {
   const s = { green:{background:T.accent,color:"#fff",border:"none"}, ghostLight:{background:"transparent",color:"#fff",border:"1.5px solid rgba(255,255,255,0.35)"}, outlineGreen:{background:"transparent",color:T.accent,border:`1.5px solid ${T.accent}`} }[variant] || {background:T.accent,color:"#fff",border:"none"};
   const handleClick = (e) => {
     if (href && href.startsWith('#')) {
@@ -83,7 +83,7 @@ function Btn({ href, variant, children, onClick }) {
     if (onClick) onClick(e);
   };
   return (
-    <a href={href} onClick={handleClick} style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"11px 24px", borderRadius:50, fontSize:14, fontWeight:600, cursor:"pointer", letterSpacing:"-0.01em", transition:"all 0.2s ease", ...s }}
+    <a href={href} target={target} rel={rel} onClick={handleClick} style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"11px 24px", borderRadius:50, fontSize:14, fontWeight:600, cursor:"pointer", letterSpacing:"-0.01em", transition:"all 0.2s ease", ...s }}
       onMouseEnter={e=>{e.currentTarget.style.opacity="0.85";e.currentTarget.style.transform="translateY(-1px)"}}
       onMouseLeave={e=>{e.currentTarget.style.opacity="1";e.currentTarget.style.transform="none"}}>
       {children}
@@ -322,6 +322,30 @@ function Nav() {
 function Hero() {
   const metrics = [{num:"40%",label:"Faster agent\ncreation"},{num:"60%",label:"TTI\nimprovement"},{num:"20k+",label:"Jobs/min\nprocessed"},{num:"2k+",label:"Msg/sec\nGoKafka"}];
   const badges = [{label:"Go · Distributed Systems",h:true},{label:"React · React Flow",h:true},{label:"AWS Bedrock"},{label:"Azure OpenAI"},{label:"TCP Protocol Design"},{label:"Node.js · Express"},{label:"Vector DBs"},{label:"Docker"}];
+  const downloadResume = () => {
+    try {
+      const blob = new Blob([RESUME_TEXT], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Siddharthi_Saha_Resume.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      window.open('data:text/plain;charset=utf-8,' + encodeURIComponent(RESUME_TEXT), '_blank');
+    }
+  };
+  // Paste your Drive link here when ready (e.g. a Google Drive share link)
+  const DRIVE_RESUME_LINK = 'https://drive.google.com/file/d/1LbZIR-4iIIKiNwmgX6vnSixidp5l5MG_/view?usp=sharing';
+  const openDriveResume = () => {
+    if (DRIVE_RESUME_LINK) {
+      window.open(DRIVE_RESUME_LINK, '_blank', 'noopener');
+    } else {
+      downloadResume();
+    }
+  };
   return (
     <section className="hero-mobile" style={{ minHeight:"100vh", background:T.house, display:"grid", gridTemplateColumns:"1fr 1fr", position:"relative", overflow:"hidden", paddingTop:68 }}>
       <div style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0 }}>
@@ -346,6 +370,7 @@ function Hero() {
         <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:52 }}>
           <Btn href="#projects" variant="green">View Projects →</Btn>
           <Btn href="#chat" variant="ghostLight">Ask Me Anything</Btn>
+          <Btn onClick={openDriveResume} variant="green">Resume</Btn>
         </div>
         <div style={{ display:"flex", border:"1px solid rgba(255,255,255,0.1)", borderRadius:12, overflow:"hidden", width:"fit-content" }}>
           {metrics.map((m,i)=>(
