@@ -338,7 +338,7 @@ function Hero() {
     }
   };
   // Paste your Drive link here when ready (e.g. a Google Drive share link)
-  const DRIVE_RESUME_LINK = 'https://drive.google.com/file/d/1LbZIR-4iIIKiNwmgX6vnSixidp5l5MG_/view?usp=sharing';
+  const DRIVE_RESUME_LINK = 'https://drive.google.com/file/d/1v6GCh0NtBMef-NikkT-qKhCKAWZrHmPK/view?usp=sharing';
   const openDriveResume = () => {
     if (DRIVE_RESUME_LINK) {
       window.open(DRIVE_RESUME_LINK, '_blank', 'noopener');
