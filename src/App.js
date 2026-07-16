@@ -937,12 +937,12 @@ function Contact() {
         <p style={{fontSize:17,color:T.snowSoft,lineHeight:1.65,maxWidth:500,margin:"0 auto 40px"}}>Open to full-time roles, contracts, and conversations about distributed systems, AI platforms, and high-performance frontend.</p>
         <div style={{display:"flex",justifyContent:"center",flexWrap:"wrap",gap:12,marginBottom:48}}>
           <Btn href="mailto:sahasiddharthi0@gmail.com" variant="green">✉ Email Me</Btn>
-          <Btn href="https://linkedin.com/in/siddharthi" variant="ghostLight">LinkedIn</Btn>
-          <Btn href="https://github.com/siddharthi" variant="ghostLight">GitHub</Btn>
-          <Btn href="https://siddharthi.dev" variant="ghostLight">siddharthi.dev</Btn>
+          <Btn href="https://www.linkedin.com/in/siddharthi-saha-269280259/" variant="ghostLight">LinkedIn</Btn>
+          <Btn href="https://github.com/sahasiddharthi1" variant="ghostLight">GitHub</Btn>
+          <Btn href="https://drive.google.com/file/d/1v6GCh0NtBMef-NikkT-qKhCKAWZrHmPK/view?usp=sharing" variant="ghostLight">Resume</Btn>
         </div>
         <div style={{paddingTop:40,borderTop:"1px solid rgba(255,255,255,0.1)",display:"flex",justifyContent:"center",gap:40,flexWrap:"wrap"}}>
-          {[["Email","sahasiddharthi0@gmail.com"],["Phone","+91 90518 81296"],["Location","Hyderabad, India"],["Status","Open to opportunities"]].map(([l,v])=>(
+          {[["Email","sahasiddharthi0@gmail.com"],["Phone","+91 90518 81296"],["Location","Hyderabad/Bengaluru, India"],["Status","Open to opportunities"]].map(([l,v])=>(
             <div key={l} style={{textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:T.light,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>{l}</div>
               <div style={{fontSize:14,color:T.snowSoft}}>{v}</div>
